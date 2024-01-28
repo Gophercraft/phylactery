@@ -65,6 +65,24 @@ fmt.Println(records[1].ID) // 2
 fmt.Println(records[2].ID) // 3
 ```
 
+### Querying
+
+Phylactery has a primitive way to query for records using an array of conditions.
+
+```go
+import "github.com/Gophercraft/phylactery/database/query"
+
+// Get a single record
+var rec Record
+db.Table("Records").Where(query.Eq("ID", 2)).Get(&rec)
+
+fmt.Println(rec.Text) // Two
+
+// Find all records, with ID ascending (unconditional query)
+var recs []Record
+db.Table("Records").Where().OrderBy("ID", false).Find(&recs)
+```
+
 ### Using transaction
 
 ```go
