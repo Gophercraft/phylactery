@@ -16,6 +16,10 @@ const (
 )
 
 const (
+	table_info_flag_has_schema = 1 << iota
+)
+
+const (
 	max_depth int = 0xFFFF
 )
 

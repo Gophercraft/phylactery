@@ -21,6 +21,10 @@ func (table *Table) Where(conditions ...query.Condition) *TableQuery {
 	table_query.expression.Conditions = conditions
 
 	schema := table.Schema()
+	if schema == nil {
+		panic(fmt.Errorf("database: [table %d] cannot use Where() clause without first defining a schema with Sync()", table.table))
+	}
+
 	prepare_query_expression(&table_query.expression, schema)
 	return table_query
 }
@@ -102,4 +106,8 @@ func (table_query *TableQuery) Find(multiple any) (err error) {
 	}
 
 	return
+}
+
+func (table_query *TableQuery) Delete() (deleted uint64, err error) {
+	return table_query.table.container.engine.Delete(table_query.table.table, &table_query.expression)
 }

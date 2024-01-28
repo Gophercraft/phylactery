@@ -30,6 +30,7 @@ func (engine *engine) SyncTable(table_id int32, schema *storage.TableSchemaStruc
 	table.lock_info()
 
 	table.info.schema = *schema
+	table.info.flag |= table_info_flag_has_schema
 
 	if err := engine.put_table_info(table_id); err != nil {
 		return err
