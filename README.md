@@ -74,7 +74,7 @@ import "github.com/Gophercraft/phylactery/database/query"
 
 // Get a single record
 var rec Record
-db.Table("Records").Where(query.Eq("ID", 2)).Get(&rec)
+db.Table("Records").Where(query.Eq("ID", uint64(2))).Get(&rec)
 
 fmt.Println(rec.Text) // Two
 
