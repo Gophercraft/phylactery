@@ -28,7 +28,7 @@ func (engine *engine) Commit(storage_transaction storage.Transaction) error {
 		table.info.rows += mod_table.created_rows
 		table.info.rows -= mod_table.deleted_rows
 
-		if err := table.engine.put_table_info(table_id); err != nil {
+		if err := engine.put_table_info(table_id); err != nil {
 			table.unlock_info()
 			return err
 		}

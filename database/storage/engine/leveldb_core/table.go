@@ -7,5 +7,4 @@ type table struct {
 	info        table_info
 	guard_info  sync.Mutex
 	guard_index sync.Mutex
-	engine      *engine
 }

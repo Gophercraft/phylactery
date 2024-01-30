@@ -25,6 +25,9 @@ type Engine interface {
 	// Transactionless insert
 	Insert(table int32, records []Record) error
 
+	// Transactionless count
+	Count(table int32, expr *query.Expression) (count uint64, err error)
+
 	// Transactionless query
 	Query(table int32, expr *query.Expression) (records []Record, err error)
 
@@ -35,6 +38,7 @@ type Engine interface {
 // Transaction represents the state of the Engine and all its tables as it was before NewTransaction was called.
 // It also contains information representing isolated modifications to the engine's state.
 type Transaction interface {
+	Count(table int32, expr *query.Expression) (count uint64, err error)
 	Query(table int32, expr *query.Expression) (records []Record, err error)
 	Insert(table int32, records []Record) error
 	Delete(table int32, expr *query.Expression) (deleted uint64, err error)
