@@ -58,6 +58,44 @@ func query_section() {
 	fmt.Println(len(recs), spew.Sdump(recs))
 }
 
+func delete_db() {
+	rows, err := db.Table("rec").Where(query.Lte("ID", uint64(5))).Delete()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("deleted", rows, "rows")
+}
+
+func regex_query() {
+	var recs []schema
+	if err := db.Table("rec").Where(query.Regex("Data", "x")).Find(&recs); err != nil {
+		panic(err)
+	}
+	fmt.Println(spew.Sdump(recs))
+}
+
+func query_tx_insert() {
+	tx, err := db.NewTransaction()
+	if err != nil {
+		panic(err)
+	}
+	count, err := tx.Table("rec").Where().Count()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Current count =>", count)
+	if err = tx.Table("rec").Insert(&schema{
+		Data: fmt.Sprintf("this was a transaction %d", count),
+	}); err != nil {
+		panic(err)
+	}
+
+	if err = db.Commit(tx); err != nil {
+		panic(err)
+	}
+}
+
 func main() {
 	if len(os.Args) < 3 {
 		return
@@ -74,5 +112,11 @@ func main() {
 		insert_rec_db(os.Args[3])
 	case "query":
 		query_section()
+	case "delete":
+		delete_db()
+	case "regex":
+		regex_query()
+	case "txinsert":
+		query_tx_insert()
 	}
 }
