@@ -25,7 +25,7 @@ func count_match_iterator_all_records(table_id int32, iter iterator.Iterator, sc
 		// TODO disable once we are certain that the iterator is ordered correctly
 		key_table_id := int32(binary.LittleEndian.Uint32(key[0:4]))
 		key_type := key_type(key[4])
-		if !(key_type == key_type_table_record && key_table_id == key_table_id) {
+		if !(key_type == key_type_table_record && key_table_id == table_id) {
 			panic(fmt.Errorf("invalid record in iterator, there must be a key sorting failure (key type %d, table id %d)", key_type, key_table_id))
 		}
 		// Unmarshal value from LevelDB into a Record

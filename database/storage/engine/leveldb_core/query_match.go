@@ -15,11 +15,20 @@ import (
 	"github.com/syndtr/goleveldb/leveldb/util"
 )
 
-func query_column_matches_condition_equals(col any, schema *storage.TableSchemaColumn, condition *query.Condition) (bool, error) {
-	reflect_col := reflect.ValueOf(col)
-	reflect_condition_value := reflect.ValueOf(condition.Parameter)
+func query_get_column_and_condition(col any, condition *query.Condition) (reflect_col reflect.Value, reflect_condition_value reflect.Value, err error) {
+	reflect_col = reflect.ValueOf(col)
+	reflect_condition_value = reflect.ValueOf(condition.Parameter)
 	if reflect_col.Kind() != reflect_condition_value.Kind() {
-		return false, fmt.Errorf("cannot compare different kinds of fields (%s in column(%s), queried(%s))", schema.Name, reflect_col.Type(), reflect_condition_value.Type())
+		err = fmt.Errorf("cannot compare different kinds of fields (%s in column(%s), queried(%s))", condition.ColumnName, reflect_col.Type(), reflect_condition_value.Type())
+	}
+	return
+}
+
+func query_column_matches_condition_equals(col any, schema *storage.TableSchemaColumn, condition *query.Condition) (bool, error) {
+	// Get reflection values of queried value & the value of the current row
+	reflect_col, reflect_condition_value, err := query_get_column_and_condition(col, condition)
+	if err != nil {
+		return false, err
 	}
 
 	switch reflect_col.Kind() {
@@ -38,14 +47,13 @@ func query_column_matches_condition_equals(col any, schema *storage.TableSchemaC
 	default:
 		panic(fmt.Errorf("cannot == compare this kind of data %s", reflect_col))
 	}
-	return col == condition.Parameter, nil
 }
 
 func query_column_matches_condition_greater_than(col any, schema *storage.TableSchemaColumn, condition *query.Condition) (bool, error) {
-	reflect_col := reflect.ValueOf(col)
-	reflect_condition_value := reflect.ValueOf(condition.Parameter)
-	if reflect_col.Kind() != reflect_condition_value.Kind() {
-		return false, fmt.Errorf("cannot compare different kinds of fields (%s in column(%s), queried(%s))")
+	// Get reflection values of queried value & the value of the current row
+	reflect_col, reflect_condition_value, err := query_get_column_and_condition(col, condition)
+	if err != nil {
+		return false, err
 	}
 
 	switch reflect_col.Kind() {
@@ -65,10 +73,10 @@ func query_column_matches_condition_greater_than(col any, schema *storage.TableS
 }
 
 func query_column_matches_condition_less_than(col any, schema *storage.TableSchemaColumn, condition *query.Condition) (bool, error) {
-	reflect_col := reflect.ValueOf(col)
-	reflect_condition_value := reflect.ValueOf(condition.Parameter)
-	if reflect_col.Kind() != reflect_condition_value.Kind() {
-		return false, fmt.Errorf("cannot compare different kinds of fields (%s in column(%s), queried(%s))")
+	// Get reflection values of queried value & the value of the current row
+	reflect_col, reflect_condition_value, err := query_get_column_and_condition(col, condition)
+	if err != nil {
+		return false, err
 	}
 
 	switch reflect_col.Kind() {
@@ -88,10 +96,10 @@ func query_column_matches_condition_less_than(col any, schema *storage.TableSche
 }
 
 func query_column_matches_condition_greater_than_or_equal(col any, schema *storage.TableSchemaColumn, condition *query.Condition) (bool, error) {
-	reflect_col := reflect.ValueOf(col)
-	reflect_condition_value := reflect.ValueOf(condition.Parameter)
-	if reflect_col.Kind() != reflect_condition_value.Kind() {
-		return false, fmt.Errorf("cannot compare different kinds of fields (%s in column(%s), queried(%s))")
+	// Get reflection values of queried value & the value of the current row
+	reflect_col, reflect_condition_value, err := query_get_column_and_condition(col, condition)
+	if err != nil {
+		return false, err
 	}
 
 	switch reflect_col.Kind() {
@@ -111,10 +119,10 @@ func query_column_matches_condition_greater_than_or_equal(col any, schema *stora
 }
 
 func query_column_matches_condition_less_than_or_equal(col any, schema *storage.TableSchemaColumn, condition *query.Condition) (bool, error) {
-	reflect_col := reflect.ValueOf(col)
-	reflect_condition_value := reflect.ValueOf(condition.Parameter)
-	if reflect_col.Kind() != reflect_condition_value.Kind() {
-		return false, fmt.Errorf("cannot compare different kinds of fields (column(%s), queried(%s))", reflect_col.Kind(), reflect_condition_value.Kind())
+	// Get reflection values of queried value & the value of the current row
+	reflect_col, reflect_condition_value, err := query_get_column_and_condition(col, condition)
+	if err != nil {
+		return false, err
 	}
 
 	switch reflect_col.Kind() {
@@ -145,10 +153,10 @@ func query_column_matches_condition_regular_expression(col any, schema *storage.
 }
 
 func query_column_matches_condition_bitwise_and(col any, schema *storage.TableSchemaColumn, condition *query.Condition) (bool, error) {
-	reflect_col := reflect.ValueOf(col)
-	reflect_condition_value := reflect.ValueOf(condition.Parameter)
-	if reflect_col.Kind() != reflect_condition_value.Kind() {
-		return false, fmt.Errorf("cannot compare different kinds of fields (column(%s), queried(%s))", reflect_col.Kind(), reflect_condition_value.Kind())
+	// Get reflection values of queried value & the value of the current row
+	reflect_col, reflect_condition_value, err := query_get_column_and_condition(col, condition)
+	if err != nil {
+		return false, err
 	}
 
 	switch reflect_col.Kind() {
@@ -224,7 +232,7 @@ func query_match_iterator_all_records(table_id int32, iter iterator.Iterator, sc
 		// TODO disable once we are certain that the iterator is ordered correctly
 		key_table_id := int32(binary.LittleEndian.Uint32(key[0:4]))
 		key_type := key_type(key[4])
-		if !(key_type == key_type_table_record && key_table_id == key_table_id) {
+		if !(key_type == key_type_table_record && key_table_id == table_id) {
 			panic(fmt.Errorf("invalid record in iterator, there must be a key sorting failure (key type %d, table id %d)", key_type, key_table_id))
 		}
 		key_record_ID := binary.LittleEndian.Uint64(key[5:13])
