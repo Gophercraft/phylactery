@@ -114,7 +114,7 @@ func query_column_matches_condition_less_than_or_equal(col any, schema *storage.
 	reflect_col := reflect.ValueOf(col)
 	reflect_condition_value := reflect.ValueOf(condition.Parameter)
 	if reflect_col.Kind() != reflect_condition_value.Kind() {
-		return false, fmt.Errorf("cannot compare different kinds of fields (%s in column(%s), queried(%s))")
+		return false, fmt.Errorf("cannot compare different kinds of fields (column(%s), queried(%s))", reflect_col.Kind(), reflect_condition_value.Kind())
 	}
 
 	switch reflect_col.Kind() {
@@ -144,6 +144,23 @@ func query_column_matches_condition_regular_expression(col any, schema *storage.
 	return regex.MatchString(str), nil
 }
 
+func query_column_matches_condition_bitwise_and(col any, schema *storage.TableSchemaColumn, condition *query.Condition) (bool, error) {
+	reflect_col := reflect.ValueOf(col)
+	reflect_condition_value := reflect.ValueOf(condition.Parameter)
+	if reflect_col.Kind() != reflect_condition_value.Kind() {
+		return false, fmt.Errorf("cannot compare different kinds of fields (column(%s), queried(%s))", reflect_col.Kind(), reflect_condition_value.Kind())
+	}
+
+	switch reflect_col.Kind() {
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return (reflect_col.Uint() & reflect_condition_value.Uint()) != 0, nil
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return (reflect_col.Int() & reflect_condition_value.Int()) != 0, nil
+	default:
+		panic(fmt.Errorf("cannot compare this kind of data %s", reflect_col))
+	}
+}
+
 func query_column_matches_condition(col any, schema *storage.TableSchemaColumn, condition *query.Condition) (bool, error) {
 	switch condition.Type {
 	case query.Condition_Equals:
@@ -165,6 +182,8 @@ func query_column_matches_condition(col any, schema *storage.TableSchemaColumn, 
 			return false, err
 		}
 		return !matched, nil
+	case query.Condition_BitwiseAND:
+		return query_column_matches_condition_bitwise_and(col, schema, condition)
 	default:
 		panic(condition.Type)
 	}
