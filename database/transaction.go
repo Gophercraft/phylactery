@@ -19,3 +19,7 @@ func (container *Container) NewTransaction() (tx *Transaction, err error) {
 func (container *Container) Commit(tx *Transaction) error {
 	return container.engine.Commit(tx.storage_transaction)
 }
+
+func (container *Container) Release(tx *Transaction) error {
+	return container.engine.Release(tx.storage_transaction)
+}

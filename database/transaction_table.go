@@ -1,6 +1,8 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/Gophercraft/phylactery/database/query"
 	"github.com/Gophercraft/phylactery/database/storage"
 )
@@ -40,4 +42,20 @@ func (tx_table *TransactionTable) Where(conditions ...query.Condition) *Transact
 func (tx_table *TransactionTable) Insert(records any) error {
 	schema := tx_table.Schema()
 	return insert_records(tx_table, schema, records)
+}
+
+func (tx_table *TransactionTable) Iterate(fn any) error {
+	// Get table schema
+	schema := tx_table.Schema()
+	if schema == nil {
+		return fmt.Errorf("cannot iterate without schema")
+	}
+
+	// Create an adapted function to use resolve custom record handler into func(storage.Record) bool
+	iterator_func, err := create_iterator_func(schema, fn)
+	if err != nil {
+		return err
+	}
+
+	return tx_table.transaction.storage_transaction.Iterate(tx_table.table_id, iterator_func)
 }

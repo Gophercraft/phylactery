@@ -39,7 +39,7 @@ func (engine *engine) presort_query_all_rows_unconditionally(snap snapshot, tabl
 		// TODO disable once we are certain that the iterator is ordered correctly
 		key_table_id := int32(binary.LittleEndian.Uint32(key[0:4]))
 		key_type := key_type(key[4])
-		if !(key_type == key_type_table_record && key_table_id == key_table_id) {
+		if !(key_type == key_type_table_record && table_id == key_table_id) {
 			panic(fmt.Errorf("invalid record in iterator, there must be a key sorting failure (key type %d, table id %d)", key_type, key_table_id))
 		}
 		record_ID := binary.LittleEndian.Uint64(key[5:13])
