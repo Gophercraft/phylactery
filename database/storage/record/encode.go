@@ -8,7 +8,6 @@ import (
 	"math"
 
 	"github.com/Gophercraft/phylactery/database/storage"
-	"github.com/davecgh/go-spew/spew"
 )
 
 type encoder struct {
@@ -294,8 +293,6 @@ func Marshal(schema *storage.TableSchemaStructure, record storage.Record) ([]byt
 	if err := encoder.encode_structure(schema.Columns, record); err != nil {
 		return nil, err
 	}
-
-	fmt.Println("marshal", spew.Sdump(buffer.Bytes()))
 
 	return buffer.Bytes(), nil
 }
