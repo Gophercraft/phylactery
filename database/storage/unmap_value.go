@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 	"reflect"
+	"time"
 )
 
 func unmap_array(column Record, value reflect.Value, schema *TableSchemaColumn) error {
@@ -72,6 +73,8 @@ func unmap_column(column any, value reflect.Value, schema *TableSchemaColumn) er
 		return unmap_map(column.(Record), value, schema)
 	case TableSchemaColumnStructure:
 		return unmap_structure(column.(Record), value, schema.Members)
+	case TableSchemaColumnTime:
+		value.Set(reflect.ValueOf(column.(time.Time)))
 	default:
 		return fmt.Errorf("unmap unknown kind %d", schema.Kind)
 	}

@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 	"reflect"
+	"time"
 )
 
 // Using reflection, maps a Go struct into a storage Record.
@@ -69,6 +70,12 @@ func map_array(array_column_value reflect.Value, array_column_schema *TableSchem
 }
 
 func map_column(column_value reflect.Value, column_schema *TableSchemaColumn) (mapped_column any, err error) {
+	// check special types
+	switch column_schema.Kind {
+	case TableSchemaColumnTime:
+		return column_value.Interface().(time.Time), nil
+	}
+	// check reflection kinds (ignoring specific type)
 	switch column_value.Kind() {
 	case reflect.Uint, reflect.Uint64:
 		return uint64(column_value.Uint()), nil

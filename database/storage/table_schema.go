@@ -12,6 +12,7 @@ const (
 	TableSchemaColumnArray
 	TableSchemaColumnSlice
 	TableSchemaColumnMap
+	TableSchemaColumnTime
 )
 
 type TableSchemaColumn struct {

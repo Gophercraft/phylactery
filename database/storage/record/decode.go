@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"time"
 
 	"github.com/Gophercraft/phylactery/database/storage"
 )
@@ -145,6 +146,23 @@ func (decoder *decoder) decode_f64() (float64, error) {
 	return math.Float64frombits(u64), nil
 }
 
+func (decoder *decoder) decode_time() (t time.Time, err error) {
+	var sizebyte uint8
+	sizebyte, err = decoder.decode_u8()
+	if err != nil {
+		return
+	}
+
+	size := int(sizebyte)
+	time_bytes := make([]byte, size)
+	if _, err = io.ReadFull(decoder.reader, time_bytes); err != nil {
+		return
+	}
+
+	err = t.UnmarshalBinary(time_bytes)
+	return
+}
+
 func (decoder *decoder) decode_raw_value(wire_type wire_type, value_column *storage.TableSchemaColumn) (value any, err error) {
 	switch wire_type {
 	// struct
@@ -190,6 +208,8 @@ func (decoder *decoder) decode_raw_value(wire_type wire_type, value_column *stor
 		return decoder.decode_f32()
 	case wire_type_f64:
 		return decoder.decode_f64()
+	case wire_type_time:
+		return decoder.decode_time()
 	default:
 		return nil, fmt.Errorf("unhandled wire_type %d", wire_type)
 	}

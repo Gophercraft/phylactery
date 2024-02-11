@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"time"
 
 	"github.com/Gophercraft/phylactery/database/storage"
 )
@@ -71,6 +72,21 @@ func (encoder *encoder) encode_f64(f64 float64) (err error) {
 	var bytes [8]byte
 	binary.LittleEndian.PutUint64(bytes[:], math.Float64bits(f64))
 	_, err = encoder.writer.Write(bytes[:])
+	return
+}
+
+func (encoder *encoder) encode_time(t time.Time) (err error) {
+	var time_bytes []byte
+	time_bytes, err = t.MarshalBinary()
+	if err != nil {
+		return
+	}
+	if err = encoder.encode_u8(uint8(len(time_bytes))); err != nil {
+		return
+	}
+	if _, err = encoder.writer.Write(time_bytes); err != nil {
+		return
+	}
 	return
 }
 
@@ -174,6 +190,12 @@ func (encoder *encoder) encode_raw_value(wire_type wire_type, value_column *stor
 			return fmt.Errorf("value %+v should be a float64", value)
 		}
 		err = encoder.encode_f64(f64_value)
+	case wire_type_time:
+		time_value, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("value %+v should be a time.Time", value)
+		}
+		err = encoder.encode_time(time_value)
 	default:
 		return fmt.Errorf("unhandled wire_type %d", err)
 	}

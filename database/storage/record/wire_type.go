@@ -24,6 +24,7 @@ const (
 	wire_type_slice
 	wire_type_structure
 	wire_type_map
+	wire_type_time
 )
 
 func get_wire_type(kind storage.TableSchemaColumnKind, size int32) (wire_type, error) {
