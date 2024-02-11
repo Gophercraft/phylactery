@@ -5,6 +5,11 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
+)
+
+var (
+	spec_time = reflect.TypeOf(new(time.Time)).Elem()
 )
 
 var acceptable_index_types = []TableSchemaColumnKind{
@@ -15,6 +20,13 @@ var acceptable_index_types = []TableSchemaColumnKind{
 }
 
 func schematize_column(column_type reflect.Type) (column TableSchemaColumn, err error) {
+	// schematize special types
+	switch column_type {
+	case spec_time:
+		column.Kind = TableSchemaColumnTime
+		return
+	}
+	// schematize based on the kind of the type
 	switch column_type.Kind() {
 	case reflect.String:
 		column.Kind = TableSchemaColumnString
@@ -142,7 +154,7 @@ func schematize_structure(structure_type reflect.Type) (columns []TableSchemaCol
 			var field_tag_number_u64 uint64
 			field_tag_number_u64, err = strconv.ParseUint(field_tag_string, 10, 64)
 			if err != nil {
-				err = fmt.Errorf("field must have tag number %w", err)
+				err = fmt.Errorf("field (type %s) must have tag number (%s) %w", structure_type, field_tag_string, err)
 				return
 			}
 			field_tag_number = uint32(field_tag_number_u64)
