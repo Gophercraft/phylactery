@@ -174,7 +174,15 @@ func schematize_structure(structure_type reflect.Type) (columns []TableSchemaCol
 				default:
 					err = fmt.Errorf("unrecognized database tag %s (%s)", tag, field_tag_options_string)
 				}
+				if err != nil {
+					return
+				}
 			}
+		}
+
+		if column_schema.Exclusive && !column_schema.Index {
+			err = fmt.Errorf("field %s cannot be exclusive but not have an index", field.Name)
+			return
 		}
 
 		if column_schema.Index {
@@ -188,6 +196,7 @@ func schematize_structure(structure_type reflect.Type) (columns []TableSchemaCol
 
 			if !is_valid {
 				err = fmt.Errorf("column %s with kind %d is not indexable", column_schema.Name, column_schema.Kind)
+				return
 			}
 		}
 

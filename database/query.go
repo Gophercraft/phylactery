@@ -46,6 +46,29 @@ func apply_query_expression_order(schema *storage.TableSchemaStructure, expr *qu
 	panic(column_name)
 }
 
+func apply_column_indices(schema *storage.TableSchemaStructure, expr *query.Expression, column_names []string) (column_indices []int) {
+	found := make([]bool, len(column_names))
+	column_indices = make([]int, len(column_names))
+
+	for indices_index, column_name := range column_names {
+		for column_index, column := range schema.Columns {
+			if column_name == column.Name {
+				column_indices[indices_index] = column_index
+				found[indices_index] = true
+				break
+			}
+		}
+	}
+
+	for index, fn := range found {
+		if !fn {
+			panic(fmt.Errorf("could not find column %s in schema", column_names[index]))
+		}
+	}
+
+	return
+}
+
 type table_query interface {
 	Query(table int32, expr *query.Expression) ([]storage.Record, error)
 }

@@ -72,6 +72,8 @@ func get_wire_type(kind storage.TableSchemaColumnKind, size int32) (wire_type, e
 		return wire_type_structure, nil
 	case storage.TableSchemaColumnSlice, storage.TableSchemaColumnArray:
 		return wire_type_slice, nil
+	case storage.TableSchemaColumnTime:
+		return wire_type_time, nil
 	default:
 		return 0, fmt.Errorf("unknown kind %d", kind)
 	}

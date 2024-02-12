@@ -34,6 +34,9 @@ type Engine interface {
 	// Transactionless query, returning matched records
 	Query(table int32, expr *query.Expression) (records []Record, err error)
 
+	// Transactionless update, modifying all matched records to have contents of Record
+	Update(table int32, expr *query.Expression, columns []int, values []any) (affected_rows uint64, err error)
+
 	// Transactionless delete, returning number of affected rows
 	Delete(table int32, expr *query.Expression) (uint64, error)
 
@@ -47,6 +50,7 @@ type Transaction interface {
 	Count(table int32, expr *query.Expression) (count uint64, err error)
 	Query(table int32, expr *query.Expression) (records []Record, err error)
 	Insert(table int32, records []Record) error
+	Update(table int32, expr *query.Expression, columns []int, values []any) (affected_rows uint64, err error)
 	Delete(table int32, expr *query.Expression) (deleted uint64, err error)
 	Iterate(table int32, iteration Iteration) (err error)
 }
