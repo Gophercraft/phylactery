@@ -18,3 +18,8 @@ func (engine *engine) Open(path string) (err error) {
 	err = engine.load_tables()
 	return
 }
+
+func (engine *engine) Close() (err error) {
+	err = engine.db.Close()
+	return
+}

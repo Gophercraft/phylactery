@@ -8,6 +8,9 @@ type Engine interface {
 	// Opens or creates a database at the resource path
 	Open(resource string) error
 
+	// Closes and releases the database resource
+	Close() error
+
 	// Make/Get a handle for a table.
 	CreateTable(table string) int32
 
