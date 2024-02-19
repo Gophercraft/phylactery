@@ -151,13 +151,15 @@ func schematize_structure(structure_type reflect.Type) (columns []TableSchemaCol
 			field_tag_number = uint32(field_tag_number_u64)
 			field_tag_options_string = field_tag_elements[1]
 		} else {
-			var field_tag_number_u64 uint64
-			field_tag_number_u64, err = strconv.ParseUint(field_tag_string, 10, 64)
-			if err != nil {
-				err = fmt.Errorf("field (type %s) must have tag number (%s) %w", structure_type, field_tag_string, err)
-				return
+			if len(field_tag_string) > 0 {
+				var field_tag_number_u64 uint64
+				field_tag_number_u64, err = strconv.ParseUint(field_tag_string, 10, 64)
+				if err != nil {
+					err = fmt.Errorf("field (type %s) must have tag number (%s) %w", structure_type, field_tag_string, err)
+					return
+				}
+				field_tag_number = uint32(field_tag_number_u64)
 			}
-			field_tag_number = uint32(field_tag_number_u64)
 		}
 		last_tag = field_tag_number
 		column_schema.Tag = uint32(field_tag_number)
