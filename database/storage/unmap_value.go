@@ -17,7 +17,8 @@ func unmap_array(column Record, value reflect.Value, schema *TableSchemaColumn) 
 }
 
 func unmap_slice(column Record, value reflect.Value, schema *TableSchemaColumn) error {
-	value.SetLen(len(column))
+	value.Set(reflect.MakeSlice(value.Type(), len(column), len(column)))
+
 	for i := 0; i < len(column); i++ {
 		if err := unmap_column(column[i], value.Index(i), &schema.Members[0]); err != nil {
 			return err
