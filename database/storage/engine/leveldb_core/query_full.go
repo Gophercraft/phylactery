@@ -90,10 +90,11 @@ func (engine *engine) presort_query_full(snap snapshot, table_id int32, expr *qu
 				}
 				return
 			}
+			result_ID := binary.LittleEndian.Uint64(result_ID_bytes)
 
 			// Read record using record ID
 			var result_bytes []byte
-			result_bytes, err = snap.Get(make_record_sector_key(table_id, record_IDs[0]), nil)
+			result_bytes, err = snap.Get(make_record_sector_key(table_id, result_ID), nil)
 			if err != nil {
 				return
 			}
