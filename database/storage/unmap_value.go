@@ -55,16 +55,15 @@ func unmap_map(column Record, value reflect.Value, schema *TableSchemaColumn) er
 
 func unmap_column(column any, value reflect.Value, schema *TableSchemaColumn) error {
 	switch schema.Kind {
-	case TableSchemaColumnBool:
-		value.SetBool(column.(bool))
-	case TableSchemaColumnInt:
-		value.Set(reflect.ValueOf(column))
-	case TableSchemaColumnUint:
-		value.Set(reflect.ValueOf(column))
-	case TableSchemaColumnFloat:
-		value.Set(reflect.ValueOf(column))
-	case TableSchemaColumnString:
-		value.SetString(column.(string))
+	case TableSchemaColumnBool, TableSchemaColumnInt, TableSchemaColumnUint, TableSchemaColumnFloat, TableSchemaColumnString:
+		column_value := reflect.ValueOf(column)
+		if column_value.Type() == value.Type() {
+			value.Set(column_value)
+		} else if column_value.CanConvert(value.Type()) {
+			value.Set(column_value.Convert(value.Type()))
+		} else {
+			return fmt.Errorf("storage: mapped column type %s is not convertible to structured value type %s", column_value.Type(), value.Type())
+		}
 	case TableSchemaColumnArray:
 		return unmap_array(column.(Record), value, schema)
 	case TableSchemaColumnSlice:
