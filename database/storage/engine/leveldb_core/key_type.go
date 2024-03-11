@@ -16,7 +16,8 @@ const (
 	// called the record or row ID. Note that this ID is opaque to the public API of Phylactery.
 	// [table ID : int32, key_type, row ID : uint64] -> [record data : any]
 	key_type_table_record
-	// A repeatable index is a
+	// A repeatable index is like exclusive index, except containing a row ID in the key
+	// the row ID makes the key unique, while being able to have multiple keys with the same packed value pointing to several different row IDs
 	// [table ID : int32, key_type, column tag : uint32, index_type, encoded value ] -> [row ID : uint64]
 	key_type_table_column_repeatable_index
 	// [table ID : int32, key_type, column tag : uint32, packed binary value : any] -> [row ID : uint64]

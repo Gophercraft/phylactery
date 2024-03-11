@@ -6,6 +6,7 @@ import (
 	"math"
 	"reflect"
 	"regexp"
+	"time"
 
 	"github.com/Gophercraft/phylactery/database/query"
 	"github.com/Gophercraft/phylactery/database/storage"
@@ -14,6 +15,8 @@ import (
 	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/util"
 )
+
+var time_type = reflect.TypeFor[time.Time]()
 
 func query_get_column_and_condition(col any, condition *query.Condition) (reflect_col reflect.Value, reflect_condition_value reflect.Value, err error) {
 	reflect_col = reflect.ValueOf(col)
@@ -29,6 +32,12 @@ func query_column_matches_condition_equals(col any, schema *storage.TableSchemaC
 	reflect_col, reflect_condition_value, err := query_get_column_and_condition(col, condition)
 	if err != nil {
 		return false, err
+	}
+
+	if reflect_col.Type() == time_type {
+		reflect_col_time := reflect_col.Interface().(time.Time)
+		condition_time := reflect_condition_value.Interface().(time.Time)
+		return reflect_col_time.Equal(condition_time), nil
 	}
 
 	switch reflect_col.Kind() {
@@ -56,6 +65,12 @@ func query_column_matches_condition_greater_than(col any, schema *storage.TableS
 		return false, err
 	}
 
+	if reflect_col.Type() == time_type {
+		reflect_col_time := reflect_col.Interface().(time.Time)
+		condition_time := reflect_condition_value.Interface().(time.Time)
+		return reflect_col_time.After(condition_time), nil
+	}
+
 	switch reflect_col.Kind() {
 	case reflect.String:
 		return reflect_col.String() > reflect_condition_value.String(), nil
@@ -77,6 +92,12 @@ func query_column_matches_condition_less_than(col any, schema *storage.TableSche
 	reflect_col, reflect_condition_value, err := query_get_column_and_condition(col, condition)
 	if err != nil {
 		return false, err
+	}
+
+	if reflect_col.Type() == time_type {
+		reflect_col_time := reflect_col.Interface().(time.Time)
+		condition_time := reflect_condition_value.Interface().(time.Time)
+		return reflect_col_time.Before(condition_time), nil
 	}
 
 	switch reflect_col.Kind() {
@@ -102,6 +123,12 @@ func query_column_matches_condition_greater_than_or_equal(col any, schema *stora
 		return false, err
 	}
 
+	if reflect_col.Type() == time_type {
+		reflect_col_time := reflect_col.Interface().(time.Time)
+		condition_time := reflect_condition_value.Interface().(time.Time)
+		return reflect_col_time.After(condition_time) || reflect_col_time.Equal(condition_time), nil
+	}
+
 	switch reflect_col.Kind() {
 	case reflect.String:
 		return reflect_col.String() >= reflect_condition_value.String(), nil
@@ -123,6 +150,12 @@ func query_column_matches_condition_less_than_or_equal(col any, schema *storage.
 	reflect_col, reflect_condition_value, err := query_get_column_and_condition(col, condition)
 	if err != nil {
 		return false, err
+	}
+
+	if reflect_col.Type() == time_type {
+		reflect_col_time := reflect_col.Interface().(time.Time)
+		condition_time := reflect_condition_value.Interface().(time.Time)
+		return reflect_col_time.Before(condition_time) || reflect_col_time.Equal(condition_time), nil
 	}
 
 	switch reflect_col.Kind() {
