@@ -18,6 +18,7 @@ func prepare_query_condition(condition *query.Condition, schema *storage.TableSc
 
 		if condition.Type == query.Condition_Not {
 			prepare_query_condition(condition.Parameter.(*query.Condition), schema)
+			return
 		}
 	}
 	// Was ColumnName found in the schema?
