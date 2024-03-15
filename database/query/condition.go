@@ -10,6 +10,7 @@ const (
 	Condition_GreaterThanOrEqual
 	Condition_RegularExpression
 	Condition_Not
+	Condition_Or
 	Condition_BitwiseAND
 )
 

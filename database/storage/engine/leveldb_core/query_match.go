@@ -202,6 +202,46 @@ func query_column_matches_condition_bitwise_and(col any, schema *storage.TableSc
 	}
 }
 
+func query_match_condition(schema *storage.TableSchemaStructure, value_record storage.Record, condition *query.Condition) (bool, error) {
+	switch condition.Type {
+	case query.Condition_Not,
+		query.Condition_Or:
+		return query_match_embedded_condition(schema, value_record, condition)
+	default:
+		column := value_record[condition.Column]
+
+		matched, err := query_column_matches_condition(column, &schema.Columns[condition.Column], condition)
+		if err != nil {
+			return false, err
+		}
+
+		return matched, nil
+	}
+}
+
+func query_match_embedded_condition(schema *storage.TableSchemaStructure, value_record storage.Record, condition *query.Condition) (bool, error) {
+	switch condition.Type {
+	case query.Condition_Not:
+		embedded_condition := condition.Parameter.(*query.Condition)
+		result, err := query_match_condition(schema, value_record, embedded_condition)
+		return !result, err
+	case query.Condition_Or:
+		embedded_conditions := condition.Parameter.([]*query.Condition)
+		for _, embedded_condition := range embedded_conditions {
+			matched, err := query_match_condition(schema, value_record, embedded_condition)
+			if err != nil {
+				return false, err
+			}
+			if matched {
+				return true, nil
+			}
+		}
+		return false, nil
+	default:
+		return false, fmt.Errorf("not an embedded condition")
+	}
+}
+
 func query_column_matches_condition(col any, schema *storage.TableSchemaColumn, condition *query.Condition) (bool, error) {
 	switch condition.Type {
 	case query.Condition_Equals:
@@ -284,9 +324,7 @@ func query_match_iterator_all_records(table_id int32, iter iterator.Iterator, sc
 		for c := range query_expression.Conditions {
 			condition := &query_expression.Conditions[c]
 
-			column := value_record[condition.Column]
-
-			matched, err = query_column_matches_condition(column, &schema.Columns[condition.Column], condition)
+			matched, err = query_match_condition(schema, value_record, condition)
 			if err != nil {
 				return
 			}
