@@ -226,8 +226,9 @@ func query_match_embedded_condition(schema *storage.TableSchemaStructure, value_
 		result, err := query_match_condition(schema, value_record, embedded_condition)
 		return !result, err
 	case query.Condition_Or:
-		embedded_conditions := condition.Parameter.([]*query.Condition)
-		for _, embedded_condition := range embedded_conditions {
+		embedded_conditions := condition.Parameter.([]query.Condition)
+		for i := range embedded_conditions {
+			embedded_condition := &embedded_conditions[i]
 			matched, err := query_match_condition(schema, value_record, embedded_condition)
 			if err != nil {
 				return false, err
