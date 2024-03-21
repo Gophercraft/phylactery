@@ -56,7 +56,7 @@ func unmap_map(column Record, value reflect.Value, schema *TableSchemaColumn) er
 
 func unmap_column(column any, value reflect.Value, schema *TableSchemaColumn) error {
 	switch schema.Kind {
-	case TableSchemaColumnBool, TableSchemaColumnInt, TableSchemaColumnUint, TableSchemaColumnFloat, TableSchemaColumnString:
+	case TableSchemaColumnBool, TableSchemaColumnInt, TableSchemaColumnUint, TableSchemaColumnFloat, TableSchemaColumnString, TableSchemaColumnBytes:
 		column_value := reflect.ValueOf(column)
 		if column_value.Type() == value.Type() {
 			value.Set(column_value)
