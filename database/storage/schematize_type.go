@@ -134,6 +134,7 @@ func schematize_structure(structure_type reflect.Type) (columns []TableSchemaCol
 		var column_schema TableSchemaColumn
 		column_schema, err = schematize_column(field.Type)
 		if err != nil {
+			err = fmt.Errorf("error schematizing column %s: %w", field.Name, err)
 			return
 		}
 
