@@ -74,6 +74,8 @@ func map_column(column_value reflect.Value, column_schema *TableSchemaColumn) (m
 	switch column_schema.Kind {
 	case TableSchemaColumnTime:
 		return column_value.Interface().(time.Time), nil
+	case TableSchemaColumnBytes:
+		return column_value.Bytes(), nil
 	}
 	// check reflection kinds (ignoring specific type)
 	switch column_value.Kind() {
