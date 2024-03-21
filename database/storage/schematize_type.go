@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	spec_time = reflect.TypeOf(new(time.Time)).Elem()
+	spec_time  = reflect.TypeFor[time.Time]()
+	spec_bytes = reflect.TypeFor[[]byte]()
 )
 
 var acceptable_index_types = []TableSchemaColumnKind{
@@ -24,6 +25,8 @@ func schematize_column(column_type reflect.Type) (column TableSchemaColumn, err 
 	switch column_type {
 	case spec_time:
 		column.Kind = TableSchemaColumnTime
+	case spec_bytes:
+		column.Kind = TableSchemaColumnBytes
 		return
 	}
 	// schematize based on the kind of the type

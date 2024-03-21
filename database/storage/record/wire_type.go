@@ -21,6 +21,7 @@ const (
 	wire_type_f64
 	wire_type_bool
 	wire_type_string
+	wire_type_bytes
 	wire_type_slice
 	wire_type_structure
 	wire_type_map
@@ -29,6 +30,8 @@ const (
 
 func get_wire_type(kind storage.TableSchemaColumnKind, size int32) (wire_type, error) {
 	switch kind {
+	case storage.TableSchemaColumnBytes:
+		return wire_type_bytes, nil
 	case storage.TableSchemaColumnUint:
 		switch size {
 		case 8:

@@ -11,6 +11,9 @@ type Engine interface {
 	// Closes and releases the database resource
 	Close() error
 
+	// Lists tables
+	Tables() (tables map[string]int32)
+
 	// Make/Get a handle for a table.
 	CreateTable(table string) int32
 

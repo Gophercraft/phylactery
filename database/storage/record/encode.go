@@ -61,6 +61,20 @@ func (encoder *encoder) encode_string(str string) error {
 	return nil
 }
 
+func (encoder *encoder) encode_bytes(bytes []byte) error {
+	// Encode the length of the string in bytes
+	if err := encoder.encode_uvarint(uint64(len(bytes))); err != nil {
+		return err
+	}
+
+	// Encode the string's bytes
+	if _, err := encoder.writer.Write(bytes); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (encoder *encoder) encode_f32(f32 float32) (err error) {
 	var bytes [4]byte
 	binary.LittleEndian.PutUint32(bytes[:], math.Float32bits(f32))
@@ -107,6 +121,13 @@ func (encoder *encoder) encode_raw_value(wire_type wire_type, value_column *stor
 			return fmt.Errorf("value %+v should be a string", string_value)
 		}
 		err = encoder.encode_string(value.(string))
+	case wire_type_bytes:
+		// bytes
+		bytes_value, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("value %+v should be a byte slice ([]byte)", bytes_value)
+		}
+		err = encoder.encode_bytes(value.([]byte))
 	case wire_type_map:
 		map_value, ok := value.(storage.Record)
 		if !ok {

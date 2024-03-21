@@ -45,16 +45,25 @@ func (decoder *decoder) decode_varint() (int64, error) {
 }
 
 func (decoder *decoder) decode_string() (str string, err error) {
+	var data []byte
+	data, err = decoder.decode_bytes()
+	if err != nil {
+		return
+	}
+	str = string(data)
+	return
+}
+
+func (decoder *decoder) decode_bytes() (data []byte, err error) {
 	var length uint64
 	length, err = decoder.decode_uvarint()
 	if err != nil {
 		return
 	}
-	data := make([]byte, length)
+	data = make([]byte, length)
 	if _, err = io.ReadFull(decoder.reader, data); err != nil {
 		return
 	}
-	str = string(data)
 	return
 }
 
@@ -170,6 +179,8 @@ func (decoder *decoder) decode_raw_value(wire_type wire_type, value_column *stor
 		return decoder.decode_structure(value_column.Members)
 	case wire_type_string:
 		return decoder.decode_string()
+	case wire_type_bytes:
+		return decoder.decode_bytes()
 	case wire_type_slice:
 		return decoder.decode_slice(value_column)
 	case wire_type_map:

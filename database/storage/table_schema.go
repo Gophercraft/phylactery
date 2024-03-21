@@ -8,6 +8,7 @@ const (
 	TableSchemaColumnFloat
 	TableSchemaColumnBool
 	TableSchemaColumnString
+	TableSchemaColumnBytes
 	TableSchemaColumnStructure
 	TableSchemaColumnArray
 	TableSchemaColumnSlice

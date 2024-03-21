@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Gophercraft/phylactery/database/query"
+	"github.com/Gophercraft/phylactery/database/storage"
 )
 
 type TableQuery struct {
@@ -52,6 +53,11 @@ func (table_query *TableQuery) Get(single any) (found bool, err error) {
 		&table_query.expression,
 		single,
 	)
+}
+
+// Collect multiple mapped records
+func (table_query *TableQuery) FindRecords() (records []storage.Record, err error) {
+	return table_query.table.container.engine.Query(table_query.table.table, &table_query.expression)
 }
 
 // Collect multiple records into an array passed by reference
