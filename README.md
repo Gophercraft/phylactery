@@ -27,7 +27,7 @@ type Record struct {
 
 // ...
 
-db, err := database.Open("<path to database>", nil)
+db, err := database.Open("<path to database>", database.WithEngine("leveldb_core"))
 if err != nil {
     // ...
 }
