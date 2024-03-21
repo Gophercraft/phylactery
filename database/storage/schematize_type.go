@@ -25,6 +25,7 @@ func schematize_column(column_type reflect.Type) (column TableSchemaColumn, err 
 	switch column_type {
 	case spec_time:
 		column.Kind = TableSchemaColumnTime
+		return
 	case spec_bytes:
 		column.Kind = TableSchemaColumnBytes
 		return
