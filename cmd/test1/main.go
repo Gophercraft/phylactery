@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/Gophercraft/phylactery/database"
 	"github.com/Gophercraft/phylactery/database/query"
@@ -10,8 +11,9 @@ import (
 )
 
 type schema struct {
-	ID   uint64 `database:"1:auto_increment"`
-	Data string `database:"2"`
+	ID   uint64    `database:"1:auto_increment"`
+	Data string    `database:"2"`
+	Time time.Time `database:"3"`
 }
 
 var (
@@ -35,6 +37,7 @@ func create_db() {
 func insert_rec_db(data string) {
 	if err := db.Table("rec").Insert(&schema{
 		Data: data,
+		Time: time.Now(),
 	}); err != nil {
 		panic(err)
 	}
@@ -96,6 +99,47 @@ func query_tx_insert() {
 	}
 }
 
+func iterate_db() {
+	if err := db.Table("rec").Iterate(func(s *schema) bool {
+		fmt.Println("iterate", s.Data, s.ID)
+		return true
+	}); err != nil {
+		panic(err)
+	}
+}
+
+func txiterate_db() {
+	tx, err := db.NewTransaction()
+	if err != nil {
+		panic(err)
+	}
+
+	if err := tx.Table("rec").Iterate(func(s *schema) bool {
+		fmt.Println("txiterate", s.Data, s.ID, s.Time)
+		return true
+	}); err != nil {
+		panic(err)
+	}
+
+	db.Release(tx)
+}
+
+func schema_db() {
+	schema := db.Table("rec").Schema()
+	fmt.Println(spew.Sdump(schema))
+}
+
+func mass_update() {
+	var rec schema
+	rec.Time = time.Now()
+	updated, err := db.Table("rec").Where().Columns("Time").Update(&rec)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("updated", updated, "recs")
+}
+
 func main() {
 	if len(os.Args) < 3 {
 		return
@@ -118,5 +162,13 @@ func main() {
 		regex_query()
 	case "txinsert":
 		query_tx_insert()
+	case "iterate":
+		iterate_db()
+	case "txiterate":
+		txiterate_db()
+	case "schema":
+		schema_db()
+	case "update":
+		mass_update()
 	}
 }
