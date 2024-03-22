@@ -59,7 +59,7 @@ func (service *Service) handle_post_table_update(rw http.ResponseWriter, r *http
 		return
 	}
 
-	expression, err := convert_json_expression(table_schema, &table_update.Where)
+	expression, err := convert_json_expression(table_schema, &table_update.Query)
 	if err != nil {
 		respond_error(rw, http.StatusBadRequest, err)
 		return
@@ -73,7 +73,7 @@ func (service *Service) handle_post_table_update(rw http.ResponseWriter, r *http
 
 	table := service.db.Table(table_name)
 
-	updated, err := table.Where(expression.Conditions...).Columns(table_update.ColumnNames...).UpdateColumns(column_values...)
+	updated, err := table.Query(expression).UpdateColumns(column_values...)
 	if err != nil {
 		respond_error(rw, http.StatusBadRequest, err)
 		return

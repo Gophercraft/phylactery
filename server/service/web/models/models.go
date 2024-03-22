@@ -32,8 +32,24 @@ type QueryExpression struct {
 	Conditions []QueryCondition
 }
 
+type TableQuery struct {
+	Query QueryExpression `json:"query"`
+}
+
+type TableInsert struct {
+	Records json.RawMessage `json:"records"`
+}
+
+type TableInsertResponse struct {
+	Inserted uint64 `json:"inserted"`
+}
+
+type TableDeleteResponse struct {
+	Deleted uint64 `json:"deleted"`
+}
+
 type TableUpdate struct {
-	Where        QueryExpression `json:"where"`
+	Query        QueryExpression `json:"query"`
 	ColumnNames  []string        `json:"column_names"`
 	ColumnValues []any           `json:"column_values"`
 }

@@ -17,18 +17,18 @@ const (
 )
 
 type TableSchemaColumn struct {
-	Index         bool // Index may or may not speed up lookups.
-	Exclusive     bool // When used with Index, Exclusive means that there can only be one index per instance of this column's value
-	AutoIncrement bool // Means that the column is an integer that increases
-	Name          string
-	Tag           uint32
-	Size          int32
-	Kind          TableSchemaColumnKind
-	Members       []TableSchemaColumn
+	Index         bool                  `json:"index"`          // Index may or may not speed up lookups.
+	Exclusive     bool                  `json:"exclusive"`      // When used with Index, Exclusive means that there can only be one index per instance of this column's value
+	AutoIncrement bool                  `json:"auto_increment"` // Means that the column is an integer that increases
+	Name          string                `json:"name"`
+	Tag           uint32                `json:"tag"`
+	Size          int32                 `json:"size"`
+	Kind          TableSchemaColumnKind `json:"kind"`
+	Members       []TableSchemaColumn   `json:"members"`
 }
 
 type TableSchemaStructure struct {
-	Columns []TableSchemaColumn
+	Columns []TableSchemaColumn `json:"columns"`
 }
 
 type TableSchemaRow []TableSchemaColumn

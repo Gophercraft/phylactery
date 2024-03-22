@@ -13,17 +13,32 @@ type TableQuery struct {
 	column_indices []int
 }
 
+func (table *Table) Query(expression *query.Expression) *TableQuery {
+	schema := table.Schema()
+	if schema == nil {
+		panic(fmt.Errorf("database: [table %d] cannot use Where() clause without first defining a schema with Sync()", table.table))
+	}
+
+	table_query := new(TableQuery)
+	table_query.table = table
+	table_query.expression = *expression
+
+	prepare_query_expression(&table_query.expression, schema)
+	return table_query
+}
+
 // Create a table query where the result is informed by the supplied conditions
 // The conditions are modified to supply the faster index-reference of columns instead of relying on (*query.Condition).ColumnName
 func (table *Table) Where(conditions ...query.Condition) *TableQuery {
-	table_query := new(TableQuery)
-	table_query.table = table
-	table_query.expression.Conditions = conditions
 
 	schema := table.Schema()
 	if schema == nil {
 		panic(fmt.Errorf("database: [table %d] cannot use Where() clause without first defining a schema with Sync()", table.table))
 	}
+
+	table_query := new(TableQuery)
+	table_query.table = table
+	table_query.expression.Conditions = conditions
 
 	prepare_query_expression(&table_query.expression, schema)
 	return table_query

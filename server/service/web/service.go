@@ -15,6 +15,9 @@ func (service *Service) mount_api() {
 	service.web_mux.HandleFunc("GET /api/v1/tables", service.handle_get_tables)
 	service.web_mux.HandleFunc("GET /api/v1/table/{table_name}/schema", service.handle_get_table_schema)
 	service.web_mux.HandleFunc("GET /api/v1/table/{table_name}/data", service.handle_get_table_data)
+	service.web_mux.HandleFunc("POST /api/v1/table/{table_name}/delete", service.handle_post_table_delete)
+	service.web_mux.HandleFunc("POST /api/v1/table/{table_name}/query", service.handle_post_table_query)
+	service.web_mux.HandleFunc("POST /api/v1/table/{table_name}/insert", service.handle_post_table_insert)
 	service.web_mux.HandleFunc("POST /api/v1/table/{table_name}/update", service.handle_post_table_update)
 }
 
