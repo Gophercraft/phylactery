@@ -73,7 +73,7 @@ func (service *Service) handle_post_table_update(rw http.ResponseWriter, r *http
 
 	table := service.db.Table(table_name)
 
-	updated, err := table.Query(expression).UpdateColumns(column_values...)
+	updated, err := table.Query(expression).Columns(table_update.ColumnNames...).UpdateColumns(column_values...)
 	if err != nil {
 		respond_error(rw, http.StatusBadRequest, err)
 		return
