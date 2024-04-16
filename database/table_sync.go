@@ -16,15 +16,7 @@ func (table *Table) SyncSchema(schema *storage.TableSchemaStructure) error {
 	return table.container.engine.SyncTable(table.table, schema)
 }
 
-// Sync schematizes a struct type and applies that schema to the underlying table.
-// Warning: may be slow.
-func (table *Table) Sync(prototype any) error {
-	structure_type := reflect.TypeOf(prototype)
-	// Typically you would pass a pointer of an empty struct here.
-	// That's what we did when we were using Xorm ¯\_(ツ)_/¯
-	if structure_type.Kind() == reflect.Pointer {
-		structure_type = structure_type.Elem()
-	}
+func (table *Table) SyncType(structure_type reflect.Type) error {
 	// but if that isn't pointing to a struct, that's an error case
 	if structure_type.Kind() != reflect.Struct {
 		return fmt.Errorf("passed structure type isn't a structure: '%s'", structure_type.String())
@@ -36,4 +28,17 @@ func (table *Table) Sync(prototype any) error {
 	}
 	// Sync
 	return table.SyncSchema(schematized_structure)
+}
+
+// Sync schematizes a struct type and applies that schema to the underlying table.
+// Warning: may be slow.
+func (table *Table) Sync(prototype any) error {
+	structure_type := reflect.TypeOf(prototype)
+	// Typically you would pass a pointer of an empty struct here.
+	// That's what we did when we were using Xorm ¯\_(ツ)_/¯
+	if structure_type.Kind() == reflect.Pointer {
+		structure_type = structure_type.Elem()
+	}
+
+	return table.SyncType(structure_type)
 }
