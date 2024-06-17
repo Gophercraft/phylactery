@@ -40,8 +40,6 @@ func (service *Service) handle_post_table_query(rw http.ResponseWriter, r *http.
 		return
 	}
 
-	fmt.Println(string(mapped_isomorphic))
-
 	respond(rw, http.StatusOK, &models.MappedRecords{
 		Records: mapped_isomorphic,
 	})

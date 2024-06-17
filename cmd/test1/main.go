@@ -22,7 +22,7 @@ var (
 
 func open_db(path string) {
 	var err error
-	db, err = database.Open(path, nil)
+	db, err = database.Open(path)
 	if err != nil {
 		panic(err)
 	}
@@ -140,6 +140,16 @@ func mass_update() {
 	fmt.Println("updated", updated, "recs")
 }
 
+func backup_db() {
+	d, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	if err = db.TakeBackup(d); err != nil {
+		panic(err)
+	}
+}
+
 func main() {
 	if len(os.Args) < 3 {
 		return
@@ -170,5 +180,7 @@ func main() {
 		schema_db()
 	case "update":
 		mass_update()
+	case "backup":
+		backup_db()
 	}
 }

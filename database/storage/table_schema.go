@@ -1,5 +1,10 @@
 package storage
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 type TableSchemaColumnKind uint8
 
 const (
@@ -15,6 +20,48 @@ const (
 	TableSchemaColumnMap
 	TableSchemaColumnTime
 )
+
+var kind_names = []string{
+	"uint",
+	"int",
+	"float",
+	"bool",
+	"string",
+	"bytes",
+	"struct",
+	"array",
+	"slice",
+	"map",
+	"time",
+}
+
+func (kind TableSchemaColumnKind) MarshalJSON() (b []byte, err error) {
+	index := int(kind)
+	if index > len(kind_names) {
+		err = fmt.Errorf("invalid column schema kind %d", kind)
+		return
+	}
+
+	b, err = json.Marshal(kind_names[kind])
+	return
+}
+
+func (kind *TableSchemaColumnKind) UnmarshalJSON(b []byte) (err error) {
+	var s string
+	if err = json.Unmarshal(b, &s); err != nil {
+		return
+	}
+
+	for index, kind_name := range kind_names {
+		if kind_name == s {
+			*kind = TableSchemaColumnKind(index)
+			return
+		}
+	}
+
+	err = fmt.Errorf("invalid column schema kind '%s'", s)
+	return
+}
 
 type TableSchemaColumn struct {
 	Index         bool                  `json:"index"`          // Index may or may not speed up lookups.

@@ -7,6 +7,12 @@ import (
 	"github.com/Gophercraft/phylactery/database/storage"
 )
 
+var (
+	record_type    = reflect.TypeFor[storage.Record]()
+	iteration_type = reflect.TypeFor[storage.Iteration]()
+	bool_type      = reflect.TypeFor[bool]()
+)
+
 func validate_iterator_func(iter_func reflect.Value) (err error) {
 	iter_func_type := iter_func.Type()
 
@@ -27,6 +33,15 @@ func validate_iterator_func(iter_func reflect.Value) (err error) {
 func create_iterator_func(schema *storage.TableSchemaStructure, fn any) (iter_func storage.Iteration, err error) {
 	// Begin reflecting on iterator function
 	reflect_func := reflect.ValueOf(fn)
+	func_type := reflect_func.Type()
+
+	// If function is already a storage iteration
+	is_iter_func := func_type.NumIn() == 1 && func_type.NumOut() == 1 && func_type.In(0) == record_type && func_type.Out(0) == bool_type
+
+	if is_iter_func {
+		iter_func = reflect_func.Convert(iteration_type).Interface().(storage.Iteration)
+		return
+	}
 
 	// Ensure function is of the correct type
 	if err = validate_iterator_func(reflect_func); err != nil {
