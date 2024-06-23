@@ -24,10 +24,10 @@ func create_backup_filename(timestamp time.Time) string {
 }
 
 // Make a backup of the database as it exists currently.
-func (container *Container) TakeBackup(directory string) (err error) {
+func (container *Container) TakeBackup(directory string) (backup_path string, err error) {
 	timestamp := time.Now()
 
-	backup_path := filepath.Join(directory, create_backup_filename(timestamp))
+	backup_path = filepath.Join(directory, create_backup_filename(timestamp))
 
 	var file *os.File
 	file, err = os.OpenFile(backup_path, os.O_CREATE|os.O_WRONLY, 0755)
